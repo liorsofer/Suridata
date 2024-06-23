@@ -52,7 +52,6 @@ def chunk_data(data, processes):
 
 if __name__ == '__main__':
     num_processes = mp.cpu_count() or 1
-    print(num_processes)
     # read data from json and split into chunks based on the processes count
     data = read_data()
     chunks = chunk_data(data, num_processes)
