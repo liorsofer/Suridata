@@ -6,10 +6,11 @@ import multiprocessing as mp
 # will randomize the employees order
 def randomize_employees(emps: list):
     random.shuffle(emps)
+    return emps
 
 
 # will read and return the data from the json file
-def read__data():
+def read_data():
     # Python program to read json file
 
     # Load data from JSON file
@@ -44,13 +45,31 @@ def dwarf_giant_couples(emps: list) -> list[tuple]:
     return couples
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    num_processes = mp.cpu_count()
+# gets the data and split it into chunks based on how many processes we got
+def chunk_data(data, processes):
+    return [data[i::processes] for i in range(processes)]
 
-    emps = []
-    read_and_filter_data(emps)
-    # print(emps)
-    randomize_employees(emps)
-    # print(emps)
-    print(dwarf_giant_couples(emps))
+
+if __name__ == '__main__':
+    num_processes = mp.cpu_count() or 1
+    print(num_processes)
+    # read data from json and split into chunks based on the processes count
+    data = read_data()
+    chunks = chunk_data(data, num_processes)
+
+    with mp.Pool(processes=num_processes) as pool:
+        # Filter duplicates in chunks
+        filtered_chunks = pool.map(filter_data, chunks)
+
+        # need to remove duplicates again after merging the chunks
+        filtered_data = [item for sublist in filtered_chunks for item in sublist]
+        filtered_data = filter_data(filtered_data)
+
+        # now we can chunk the filtered data
+        chunks = chunk_data(filtered_data, num_processes)
+        randomized_chunks = pool.map(randomize_employees, chunks)
+        randomized_data = [item for sublist in randomized_chunks for item in sublist]
+        couples_chunks = pool.map(dwarf_giant_couples, chunks)
+        all_couples = [item for sublist in couples_chunks for item in sublist]
+
+    print(all_couples)
