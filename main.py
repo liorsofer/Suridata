@@ -68,7 +68,7 @@ if __name__ == '__main__':
         chunks = chunk_data(filtered_data, num_processes)
         randomized_chunks = pool.map(randomize_employees, chunks)
         randomized_data = [item for sublist in randomized_chunks for item in sublist]
-        couples_chunks = pool.map(dwarf_giant_couples, chunks)
+        couples_chunks = pool.map(dwarf_giant_couples, randomized_chunks)
         all_couples = [item for sublist in couples_chunks for item in sublist]
 
     print(all_couples)
